@@ -21,6 +21,8 @@ declare global {
     clipboard: {
       writeText?: (s: string) => Promise<void>;
       readText?: () => Promise<string>;
+      write?: (s: DataTransfer) => Promise<void>;
+      read?: () => Promise<DataTransfer>;
     };
   }
 }
@@ -44,6 +46,15 @@ export default class ClipboardPolyfill {
         "empty clipboard. Call clipboard.suppressWarnings() "+
         "to suppress this warning.");
     }
+
+    // TODO: Enable this once navigator.clipboard.write() in Chrome supports HTML.
+    // if (navigator.clipboard && navigator.clipboard.write) {
+    //   var dt = new DataTransfer();
+    //   data.forEach((value: string, key: string) => {
+    //     dt.setData(key, value);
+    //   });
+    //   return navigator.clipboard.write(dt);
+    // }
 
     return (new PromiseOrPolyfill((resolve, reject) => {
       // Internet Explorer
@@ -107,15 +118,17 @@ export default class ClipboardPolyfill {
 
   public static read(): Promise<DT> {
     return (new PromiseOrPolyfill((resolve, reject) => {
-      if (seemToBeInIE()) {
-        readIE().then(
-          (s: string) => resolve(DTFromText(s)),
+      if (navigator.clipboard && navigator.clipboard.read) {
+        navigator.clipboard.read().then(
+          (s: DataTransfer) => resolve(DTFromDataTransfer(s)),
           reject
         );
         return;
       }
-      // TODO: Attempt to read using async clipboard API.
-      reject("Read is not supported in your browser.");
+      this.readText().then(
+        (s: string) => resolve(DTFromText(s)),
+        reject
+      );
     })) as Promise<DT>;
   }
 
@@ -127,7 +140,6 @@ export default class ClipboardPolyfill {
       return readIE();
     }
     return (new PromiseOrPolyfill((resolve, reject) => {
-      // TODO: Attempt to read using async clipboard API.
       reject("Read is not supported in your browser.");
     })) as Promise<string>;
   }
@@ -245,6 +257,15 @@ function DTFromText(s: string): DT {
   var dt = new DT();
   dt.setData(TEXT_PLAIN, s);
   return dt;
+}
+
+function DTFromDataTransfer(data: DataTransfer): DT {
+  var dt = new DT();
+  for (var i = 0; i < data.items.length; i++) {
+    // TODO: getAsString takes a callback.
+    dt.setData(data.items[i].kind, data.items[i].getAsString());
+  }
+  return dt
 }
 
 /******** Internet Explorer ********/
