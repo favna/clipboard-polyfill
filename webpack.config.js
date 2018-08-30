@@ -20,7 +20,8 @@ module.exports = {
     path: __dirname + "/build",
     filename: "[name].js",
     library: "clipboard",
-    libraryTarget: "umd"
+    libraryTarget: "umd",
+    libraryExport: "default"
    },
    resolve: {
     extensions: [".ts"],
