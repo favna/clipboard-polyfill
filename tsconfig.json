@@ -1,19 +1,23 @@
 {
   "compilerOptions": {
+    "outDir": "./build",
+    "rootDir": "./lib",
+    "forceConsistentCasingInFileNames": true,
     "alwaysStrict": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "lib": ["es6", "DOM"],
+    "lib": ["es6", "dom"],
     "target": "es5",
+    "module": "commonjs",
+		"moduleResolution": "node",
     "declaration": true,
-    "noUnusedLocals": true,
-    "outDir": "build"
+    "noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"removeComments": true,
   },
-  "exclude": [
-    "experiment",
-    "build",
-    "test"
-  ]
+  "include": ["./lib/*.ts"],
+  "exclude": ["experiment", "build", "test"]
 }

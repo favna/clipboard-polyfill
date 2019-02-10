@@ -8,9 +8,9 @@ var showWarnings = true;
 // - IE9 (can't bind console functions directly), and
 // - Edge Issue #14495220 (referencing `console` without F12 Developer Tools can cause an exception)
 var warnOrLog = function() {
-  (console.warn || console.log).apply(console, arguments);
+  (console.warn || console.log).apply(console, arguments as any);
 };
-var warn = warnOrLog.bind("[clipboard-polyfill]");
+var warn = (str: string) => warnOrLog.bind("[clipboard-polyfill]");
 
 var TEXT_PLAIN = "text/plain";
 
@@ -86,7 +86,7 @@ export async function write(data: DT): Promise<void> {
 }
 
 export async function writeText(s: string): Promise<void> {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
+  if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
     debugLog("Using `navigator.clipboard.writeText()`.");
     return navigator.clipboard.writeText(s);
   }
@@ -98,7 +98,7 @@ export async function read(): Promise<DT> {
 }
 
 export async function readText(): Promise<string> {
-  if (navigator.clipboard && navigator.clipboard.readText) {
+  if (navigator && navigator.clipboard && navigator.clipboard.readText) {
     debugLog("Using `navigator.clipboard.readText()`.");
     return navigator.clipboard.readText();
   }
@@ -167,7 +167,7 @@ function copyListener(tracker: FallbackTracker, data: DT, e: ClipboardEvent): vo
   e.preventDefault();
 }
 
-function execCopy(data: DT): boolean {
+function execCopy(this: any, data: DT): boolean {
   var tracker = new FallbackTracker();
   var listener = copyListener.bind(this, tracker, data);
 
